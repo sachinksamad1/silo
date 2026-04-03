@@ -1,0 +1,80 @@
+services:
+  # NestJS API
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - STORAGE_ENDPOINT=${STORAGE_ENDPOINT}
+      - STORAGE_KEY=${STORAGE_KEY}
+      - STORAGE_SECRET=${STORAGE_SECRET}
+      - STORAGE_BUCKET=${STORAGE_BUCKET}
+    depends_on:
+      - db
+      - storage
+    networks:
+      - silo-network
+
+  # Next.js Web
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "4200:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    networks:
+      - silo-network
+
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - silo-network
+
+  # MinIO Object Storage
+  storage:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${STORAGE_KEY}
+      - MINIO_ROOT_PASSWORD=${STORAGE_SECRET}
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - silo-network
+
+  # Redis Cache (Optional as per docs)
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - silo-network
+
+networks:
+  silo-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  minio-data:
+  redis-data:

@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1775201805453,
+      "tag": "0000_mixed_mongoose",
+      "breakpoints": true
+    }
+  ]
+}

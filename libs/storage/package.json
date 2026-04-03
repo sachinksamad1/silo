@@ -1,0 +1,13 @@
+{
+  "name": "storage",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "core": "0.0.1",
+    "dexie": "^4.4.2",
+    "uuid": "^13.0.0"
+  }
+}

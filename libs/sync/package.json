@@ -1,0 +1,12 @@
+{
+  "name": "sync",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "dependencies": {
+    "storage": "0.0.1",
+    "api-client": "0.0.1"
+  }
+}

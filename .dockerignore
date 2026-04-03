@@ -1,0 +1,10 @@
+node_modules
+dist
+.nx
+.git
+npm-debug.log
+docker-compose.yml
+Dockerfile
+.env
+.env.*
+!.env.example
