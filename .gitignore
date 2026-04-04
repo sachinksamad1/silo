@@ -86,6 +86,53 @@ pids
 *.pid.lock
 .node_repl_history
 .tern-port
+pnpm-lock.yaml.*
 
 # AI Agents
 AGENTS.md
+CLAUDE.md
+GEMINI.md
+opencode.json
+.agents/
+.claude/
+.codex/
+.gemini/
+.cursor/
+.github/
+.opencode/
+
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json
+
+# --- Databases & Local Storage ---
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
+# --- Playwright ---
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# --- Docker ---
+docker/data/
+docker-compose.override.yml
+.docker/
+
+# --- Mobile Binary Outputs ---
+*.apk
+*.aab
+*.ipa
+*.keystore
+
+# --- Electron ---
+*.asar
+
+# --- Vim & Editor Backups ---
+*.swp
+*.swo
+*~

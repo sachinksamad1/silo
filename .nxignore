@@ -1,0 +1,13 @@
+node_modules
+dist
+.next
+.git
+.gemini
+.nx
+.vscode
+.claude
+.codex
+.agents
+*.lock
+*.yaml
+*.log

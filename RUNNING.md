@@ -1,13 +1,13 @@
 # 🚀 Running Silo
 
-Follow these instructions to get the Silo project up and running locally for development.
+Follow these instructions to get the Silo project up and running.
 
 ## 📋 Prerequisites
 
 Ensure you have the following installed:
 - **Node.js**: >= 20.0.0
 - **pnpm**: >= 10.0.0
-- **Docker & Docker Compose**: To run the backend services (PostgreSQL, MinIO, Redis).
+- **Docker & Docker Compose**: Required for both development and production.
 
 ---
 
@@ -19,7 +19,7 @@ Ensure you have the following installed:
    ```
 
 2. **Configure Environment Variables**:
-   Copy the example environment file and update any necessary values:
+   Copy the example environment file:
    ```bash
    cp .env.example .env
    ```
@@ -27,61 +27,55 @@ Ensure you have the following installed:
 
 ---
 
-## 🐳 Step 2: Start Backend Services
+## 👨‍💻 Mode A: Local Development
 
-Silo requires PostgreSQL (for the sync mediator) and MinIO (for binary attachments).
+Use this mode for active coding. You run the infrastructure (DB, Storage) in Docker, and the applications (API, Web) locally for fast refresh.
 
-1. **Spin up the Docker stack**:
-   ```bash
-   pnpm docker:up
-   ```
-   This will start:
-   - **PostgreSQL**: `localhost:5432`
-   - **MinIO**: `localhost:9000` (API) & `localhost:9001` (Console)
-   - **Redis**: `localhost:6379`
+### 1. Start Background Services
+```bash
+pnpm docker:up
+```
+This starts the essential infrastructure:
+- **PostgreSQL**: `localhost:5432`
+- **MinIO**: `localhost:9000` (API) & `localhost:9001` (Console)
+- **Redis**: `localhost:6379`
 
-2. **Run Database Migrations**:
-   Once the database is up, apply the initial schema:
-   ```bash
-   pnpm db:push
-   ```
-   *Tip: Use `pnpm db:studio` to open a GUI for inspecting your PostgreSQL data.*
+### 2. Run Database Migrations
+```bash
+pnpm db:push
+```
+*Tip: Use `pnpm db:studio` to inspect your PostgreSQL data.*
+
+### 3. Launch Applications
+Run individual apps using Nx:
+
+| App | Command | URL |
+| :--- | :--- | :--- |
+| **Web (Next.js)** | `pnpm nx serve web` | [http://localhost:4200](http://localhost:4200) |
+| **API (NestJS)** | `pnpm nx serve api` | [http://localhost:3000/api](http://localhost:3000/api) |
+| **Desktop** | `pnpm nx serve desktop` | (Requires Web app running) |
+| **Mobile** | `cd apps/mobile && pnpm start` | Expo Go / Simulator |
 
 ---
 
-## 💻 Step 3: Launch Applications
+## 🚢 Mode B: Full Production (Dockerized)
 
-You can run individual applications or the entire stack using Nx.
+Use this mode to test the entire stack as it would run in a production environment. Everything (including Web and API) runs inside Docker containers.
 
-### 🌐 Web App (Next.js)
+### 1. Build and Start Everything
 ```bash
-npx nx serve web
+pnpm docker:prod:up
 ```
-Visit: [http://localhost:4200](http://localhost:4200)
+This uses `docker-compose.prod.yml` to orchestrate all services.
 
-### 🏗️ API (NestJS)
+### 2. Stop Production Stack
 ```bash
-npx nx serve api
-```
-API Base: [http://localhost:3000/api](http://localhost:3000/api)
-
-### 🖥️ Desktop (Electron)
-```bash
-npx nx serve desktop
-```
-*Note: Ensure the Web App is running first, as the Electron shell wraps the local Next.js instance.*
-
-### 📱 Mobile (Expo)
-```bash
-cd apps/mobile
-pnpm start
+pnpm docker:prod:down
 ```
 
 ---
 
-## 🧪 Step 4: Verification
-
-To ensure everything is working correctly, you can run the project-wide linting and tests:
+## 🧪 Verification & Testing
 
 ```bash
 # Run all linters
@@ -95,17 +89,18 @@ npx nx run-many -t test
 
 ## 🧹 Maintenance Commands
 
-| Action | Command |
-| :--- | :--- |
-| **Stop Docker Services** | `pnpm docker:down` |
-| **Rebuild Docker Images** | `pnpm docker:build` |
-| **Generate New Migration** | `pnpm db:generate` |
-| **Reset Local Storage** | `pnpm nx run storage:test` (uses a clean in-memory instance) |
+| Action | Development Command | Production Command |
+| :--- | :--- | :--- |
+| **Stop Services** | `pnpm docker:down` | `pnpm docker:prod:down` |
+| **Rebuild Images** | `pnpm docker:build` | `pnpm docker:prod:build` |
+| **Apply Schema** | `pnpm db:push` | N/A (Handled via container) |
+| **DB GUI** | `pnpm db:studio` | - |
 
 ---
 
 ## 🆘 Troubleshooting
 
-- **Database Connection Issues**: Ensure the `DATABASE_URL` in your `.env` matches the credentials in `docker-compose.yml`.
-- **Port Conflicts**: If port `3000`, `4200`, or `5432` is already in use, update the mapping in `docker-compose.yml` and your `.env` accordingly.
-- **Next.js Standalone Build**: If building for production, ensure `output: 'standalone'` is set in `apps/web/next.config.js`.
+- **Database Connection**: Ensure `DATABASE_URL` in `.env` matches your Docker setup.
+- **Port Conflicts**: If `3000`, `4200`, or `5432` are in use, check for running processes or update `.env`.
+- **Standalone Build**: The production Dockerfile expects Next.js to be in `standalone` mode.
+
