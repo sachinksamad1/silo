@@ -57,13 +57,12 @@ export class EntryRepository {
   }
 
   // GET ALL (Timeline) — returns non-deleted entries ordered by updatedAt desc
-  // Note: Dexie indexes booleans as 0/1 internally, so equals(0) = false
   async getAll(): Promise<EntryEntity[]> {
     return db.entries
-      .where('deleted')
-      .equals(0)
+      .orderBy('updatedAt')
       .reverse()
-      .sortBy('updatedAt')
+      .filter((entry) => !entry.deleted)
+      .toArray();
   }
 
   // GET BY ID
@@ -72,12 +71,10 @@ export class EntryRepository {
   }
 
   // GET DIRTY — returns all entries pending sync
-  // Note: Dexie indexes booleans as 0/1 internally, so equals(1) = true
   async getDirty(): Promise<EntryEntity[]> {
     return db.entries
-      .where('dirty')
-      .equals(1)
-      .toArray()
+      .filter((entry) => !!entry.dirty)
+      .toArray();
   }
 
   // MARK SYNCED — clears dirty flag after successful push

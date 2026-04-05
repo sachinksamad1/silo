@@ -40,6 +40,8 @@ This starts the essential infrastructure:
 - **MinIO**: `localhost:9000` (API) & `localhost:9001` (Console)
 - **Redis**: `localhost:6379`
 
+See [Infrastructure Setup](./docs/11-infrastructure-setup.md) for detailed configuration and initial setup steps.
+
 ### 2. Run Database Migrations
 ```bash
 pnpm db:push
@@ -51,9 +53,9 @@ Run individual apps using Nx:
 
 | App | Command | URL |
 | :--- | :--- | :--- |
-| **Web (Next.js)** | `pnpm nx serve web` | [http://localhost:4200](http://localhost:4200) |
-| **API (NestJS)** | `pnpm nx serve api` | [http://localhost:3000/api](http://localhost:3000/api) |
-| **Desktop** | `pnpm nx serve desktop` | (Requires Web app running) |
+| **Web (Next.js)** | `pnpm serve:web` | [http://localhost:4200](http://localhost:4200) |
+| **API (NestJS)** | `pnpm serve:api` | [http://localhost:3000/api](http://localhost:3000/api) |
+| **Desktop** | `pnpm serve:desktop` | (Requires Web app running) |
 | **Mobile** | `cd apps/mobile && pnpm start` | Expo Go / Simulator |
 
 ---

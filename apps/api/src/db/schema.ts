@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, bigint, boolean, jsonb } from 'drizzle-orm/pg-core';
 
 // ── entries ───────────────────────────────────────────────────────────────────
 // Mirrors libs/core EntrySchema exactly.
@@ -6,15 +6,15 @@ import { pgTable, text, integer, boolean, jsonb } from 'drizzle-orm/pg-core';
 export const entries = pgTable('entries', {
   id:           text('id').primaryKey(),
   content:      jsonb('content').notNull(),          // TipTap JSON / encrypted blob (Phase 2)
-  createdAt:    integer('created_at').notNull(),      // Unix ms
-  updatedAt:    integer('updated_at').notNull(),      // Unix ms — used for LWW
+  createdAt:    bigint('created_at', { mode: 'number' }).notNull(),      // Unix ms
+  updatedAt:    bigint('updated_at', { mode: 'number' }).notNull(),      // Unix ms — used for LWW
   tags:         text('tags').array().notNull().default([]),
-  mood:         integer('mood'),                      // 1–5, nullable
+  mood:         bigint('mood', { mode: 'number' }),                      // 1–5, nullable
   attachments:  text('attachments').array().notNull().default([]), // Attachment UUIDs
   dirty:        boolean('dirty').notNull().default(false),
   deleted:      boolean('deleted').notNull().default(false),
-  lastSyncedAt: integer('last_synced_at'),
-  version:      integer('version').notNull().default(1),
+  lastSyncedAt: bigint('last_synced_at', { mode: 'number' }),
+  version:      bigint('version', { mode: 'number' }).notNull().default(1),
 });
 
 // ── attachments ───────────────────────────────────────────────────────────────
@@ -23,5 +23,5 @@ export const attachments = pgTable('attachments', {
   entryId:   text('entry_id').notNull().references(() => entries.id, { onDelete: 'cascade' }),
   type:      text('type').$type<'image' | 'audio'>().notNull(),
   url:       text('url').notNull(),
-  createdAt: integer('created_at').notNull(),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 });

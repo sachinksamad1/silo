@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Entry, EntrySchema } from 'core';
+import { Entry, EntrySchema, PullResponse } from 'core';
 
 export class ApiClient {
   private client: AxiosInstance;
@@ -26,10 +26,10 @@ export class ApiClient {
   }
 
   async pullEntries(since?: number) {
-    const response = await this.client.get<Entry[]>('/sync/pull', { params: { since } });
+    const response = await this.client.get<PullResponse>('/sync/pull', { params: { since } });
     // Validate responses
-    if (response.data && Array.isArray(response.data)) {
-      response.data.forEach(e => EntrySchema.parse(e));
+    if (response.data?.entries && Array.isArray(response.data.entries)) {
+      response.data.entries.forEach(e => EntrySchema.parse(e));
     }
     return response;
   }

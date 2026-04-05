@@ -24,9 +24,9 @@ export class SyncEngine {
       // For MVP, we use LWW and we don't store since timestamp locally yet
       // but the API supports it.
       const response = await api.pullEntries();
-      const remoteEntries = response.data;
+      const remoteEntries = response.data?.entries;
 
-      if (remoteEntries && remoteEntries.length > 0) {
+      if (remoteEntries && Array.isArray(remoteEntries) && remoteEntries.length > 0) {
         await this.repo.bulkUpsert(remoteEntries);
       }
     } catch (error) {

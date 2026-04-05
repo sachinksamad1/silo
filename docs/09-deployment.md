@@ -9,6 +9,8 @@ Use Docker Compose:
 - MinIO
 - Redis
 
+See [Infrastructure Setup](./11-infrastructure-setup.md) for detailed configuration.
+
 ## Example Services
 
 - api

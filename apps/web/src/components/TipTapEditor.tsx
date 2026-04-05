@@ -20,6 +20,7 @@ export function TipTapEditor({ initialContent, onChange }: TipTapEditorProps) {
       }),
     ],
     content: initialContent || '',
+    immediatelyRender: false,
     editorProps: {
       attributes: {
         class: 'tiptap min-h-[500px] outline-none',

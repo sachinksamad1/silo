@@ -27,6 +27,7 @@ coverage/
 .nx/installation
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+output.txt
 
 # --- Environment & Credentials ---
 .env
