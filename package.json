@@ -8,6 +8,7 @@
     "nx": "nx",
     "serve:api": "nx serve api",
     "serve:web": "nx serve web",
+    "serve:desktop": "nx serve desktop",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",

@@ -15,6 +15,7 @@ export class SyncEngine {
       await this.repo.markSynced(dirty.map(e => e.id));
     } catch (error) {
       console.error('Push failed', error);
+      throw error; // Rethrow to propagate to UI
     }
   }
 
@@ -31,6 +32,7 @@ export class SyncEngine {
       }
     } catch (error) {
       console.error('Pull failed', error);
+      throw error; // Rethrow to propagate to UI
     }
   }
 

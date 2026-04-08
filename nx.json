@@ -32,5 +32,24 @@
         "linter": "eslint"
       }
     }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "test": {
+      "cache": true,
+      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+    },
+    "lint": {
+      "cache": true
+    },
+    "serve": {
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    }
   }
 }

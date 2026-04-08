@@ -49,7 +49,8 @@ pnpm db:push
 *Tip: Use `pnpm db:studio` to inspect your PostgreSQL data.*
 
 ### 3. Launch Applications
-Run individual apps using Nx:
+
+Run individual apps using Nx for local development:
 
 | App | Command | URL |
 | :--- | :--- | :--- |
@@ -57,6 +58,23 @@ Run individual apps using Nx:
 | **API (NestJS)** | `pnpm serve:api` | [http://localhost:3000/api](http://localhost:3000/api) |
 | **Desktop** | `pnpm serve:desktop` | (Requires Web app running) |
 | **Mobile** | `cd apps/mobile && pnpm start` | Expo Go / Simulator |
+
+---
+
+## 🏗️ Building for Production
+
+To build the entire monorepo for production:
+
+```bash
+# Build all projects in production mode
+npx nx run-many -t build --configuration=production
+```
+
+To build a specific project:
+```bash
+npx nx build web --configuration=production
+npx nx build api --configuration=production
+```
 
 ---
 

@@ -4,13 +4,30 @@ import { Entry, EntrySchema, PullResponse } from 'core';
 export class ApiClient {
   private client: AxiosInstance;
 
-  constructor(baseURL = process.env['NEXT_PUBLIC_API_URL'] || '/api') {
+  constructor(baseURL?: string) {
+    const resolvedBaseURL = baseURL || process.env['NEXT_PUBLIC_API_URL'] || '/api';
+    console.log(`[ApiClient] Initializing with baseURL: ${resolvedBaseURL}`);
+
     this.client = axios.create({
-      baseURL,
+      baseURL: resolvedBaseURL,
       headers: {
         'Content-Type': 'application/json',
       },
     });
+
+    // Add logging for debugging
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        const { config, response } = error;
+        console.error(`[ApiClient Error] ${config?.method?.toUpperCase()} ${config?.baseURL}${config?.url}`, {
+          status: response?.status,
+          message: error.message,
+          data: response?.data,
+        });
+        return Promise.reject(error);
+      }
+    );
   }
 
   // Auth (Placeholder)

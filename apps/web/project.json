@@ -9,14 +9,14 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "next dev",
+        "command": "next dev --webpack",
         "cwd": "apps/web"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "next build",
+        "command": "next build --webpack",
         "cwd": "apps/web"
       },
       "outputs": [
