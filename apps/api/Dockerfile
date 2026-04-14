@@ -28,17 +28,17 @@ RUN npm install -g pnpm@10.33.0
 
 ENV NODE_ENV=production
 
-# Copy built assets from builder
-COPY --from=builder /app/dist/apps/api ./
-# Copy workspace dependencies (if nx-js:copy-workspace-modules was used)
-# Note: Nx build usually bundles everything if using webpack/esbuild for Node
-# In this project, apps/api/project.json shows webpack-cli build.
+# Copy root package files to install production dependencies
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
-# Install production dependencies only
-# We need to make sure we have the pruned lockfile/package.json
-# Nx's prune-lockfile target helps here, but for simplicity we can just install from what's in dist/apps/api
-RUN pnpm install --prod --frozen-lockfile
+# Install production dependencies
+# Note: We use --no-frozen-lockfile because we are not copying the individual package.json files of the libs
+RUN pnpm install --prod --no-frozen-lockfile
+
+# Copy built assets from builder directly into /app
+COPY --from=builder /app/dist/apps/api ./
 
 EXPOSE 3000
 
+# Run main.js from the root
 CMD ["node", "main.js"]

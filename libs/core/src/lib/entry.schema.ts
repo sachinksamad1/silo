@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const AttachmentSchema = z.object({
   id: z.string().uuid(),
   entryId: z.string().uuid(),
-  type: z.enum(['image', 'audio']),
+  type: z.enum(['image', 'audio', 'video', 'file']),
   url: z.string().url(),
   createdAt: z.number(),
 });

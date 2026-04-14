@@ -32,7 +32,6 @@ const config = {
       ui: join(__dirname, '../../libs/ui/src/index.ts'),
     },
   },
-  externals: [],
 };
 
 console.log('WEBPACK CONFIG LOADED', JSON.stringify(config, (k, v) => typeof v === 'function' ? '[Function]' : v, 2));

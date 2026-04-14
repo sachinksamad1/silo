@@ -186,7 +186,10 @@
               "options": {
                 "command": "electron ."
               },
-              "configurations": {},
+              "configurations": {
+                "development": {},
+                "production": {}
+              },
               "parallelism": true
             }
           },
@@ -332,7 +335,7 @@
                   "projects": [
                     "web"
                   ],
-                  "target": "dev"
+                  "target": "serve"
                 }
               ],
               "cache": true,
@@ -381,7 +384,7 @@
                   "projects": [
                     "web"
                   ],
-                  "target": "dev"
+                  "target": "serve"
                 }
               ],
               "cache": true,
@@ -586,7 +589,8 @@
                 "runCommand": "pnpm run lint"
               },
               "configurations": {},
-              "parallelism": true
+              "parallelism": true,
+              "cache": true
             },
             "start": {
               "executor": "nx:run-script",
@@ -868,14 +872,7 @@
               "inputs": [
                 "default",
                 "^default",
-                "{workspaceRoot}/jest.preset.js",
-                {
-                  "externalDependencies": [
-                    "jest",
-                    "@nx/jest",
-                    "ts-jest"
-                  ]
-                }
+                "{workspaceRoot}/jest.preset.js"
               ],
               "outputs": [
                 "{workspaceRoot}/coverage/apps/api"
@@ -893,46 +890,14 @@
               "parallelism": true
             },
             "build": {
-              "cache": true,
-              "dependsOn": [
-                "^build"
-              ],
-              "inputs": [
-                "default",
-                "^default",
-                {
-                  "externalDependencies": [
-                    "webpack-cli"
-                  ]
-                }
-              ],
-              "outputs": [
-                "{workspaceRoot}/dist/apps/api"
-              ],
-              "metadata": {
-                "technologies": [
-                  "webpack"
-                ],
-                "description": "Runs Webpack build",
-                "help": {
-                  "command": "pnpm exec webpack-cli build --help",
-                  "example": {
-                    "options": {
-                      "json": "stats.json"
-                    },
-                    "args": [
-                      "--profile"
-                    ]
-                  }
-                }
-              },
               "executor": "nx:run-commands",
+              "defaultConfiguration": "production",
               "options": {
-                "cwd": "apps/api",
+                "command": "webpack-cli build",
                 "args": [
                   "--node-env=production"
                 ],
-                "command": "webpack-cli build"
+                "cwd": "apps/api"
               },
               "configurations": {
                 "development": {
@@ -941,92 +906,11 @@
                   ]
                 }
               },
-              "parallelism": true
-            },
-            "serve": {
-              "continuous": true,
-              "executor": "@nx/js:node",
-              "defaultConfiguration": "development",
-              "dependsOn": [
-                "build"
-              ],
-              "options": {
-                "buildTarget": "api:build",
-                "runBuildTargetDependencies": false
-              },
-              "configurations": {
-                "development": {
-                  "buildTarget": "api:build:development"
-                },
-                "production": {
-                  "buildTarget": "api:build:production"
-                }
-              },
-              "parallelism": true
-            },
-            "preview": {
-              "continuous": true,
-              "options": {
-                "cwd": "apps/api",
-                "args": [
-                  "--node-env=production"
-                ],
-                "command": "webpack-cli serve"
-              },
-              "metadata": {
-                "technologies": [
-                  "webpack"
-                ],
-                "description": "Starts Webpack dev server in production mode",
-                "help": {
-                  "command": "pnpm exec webpack-cli serve --help",
-                  "example": {
-                    "options": {
-                      "args": [
-                        "--client-progress",
-                        "--history-api-fallback "
-                      ]
-                    }
-                  }
-                }
-              },
-              "executor": "nx:run-commands",
-              "configurations": {},
-              "parallelism": true
-            },
-            "serve-static": {
-              "continuous": true,
-              "dependsOn": [
-                "build"
-              ],
-              "executor": "@nx/web:file-server",
-              "options": {
-                "buildTarget": "build",
-                "spa": true
-              },
-              "configurations": {},
-              "parallelism": true
-            },
-            "build-deps": {
+              "parallelism": true,
               "dependsOn": [
                 "^build"
               ],
-              "configurations": {},
-              "options": {},
-              "parallelism": true,
-              "executor": "nx:noop"
-            },
-            "watch-deps": {
-              "continuous": true,
-              "dependsOn": [
-                "build-deps"
-              ],
-              "executor": "nx:run-commands",
-              "options": {
-                "command": "pnpm exec nx watch --projects api --includeDependentProjects -- pnpm exec nx build-deps api"
-              },
-              "configurations": {},
-              "parallelism": true
+              "cache": true
             },
             "prune-lockfile": {
               "dependsOn": [
@@ -1068,13 +952,34 @@
               "configurations": {},
               "options": {},
               "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "api:build",
+                "runBuildTargetDependencies": false,
+                "port": 9229
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "api:build:development"
+                },
+                "production": {
+                  "buildTarget": "api:build:production"
+                }
+              },
+              "parallelism": true
             }
           },
-          "projectType": "application",
-          "metadata": {},
           "name": "api",
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
           "sourceRoot": "apps/api/src",
+          "projectType": "application",
           "tags": [],
           "implicitDependencies": []
         }
@@ -1085,89 +990,6 @@
         "data": {
           "root": "apps/web",
           "targets": {
-            "build": {
-              "dependsOn": [
-                "^build"
-              ],
-              "cache": true,
-              "inputs": [
-                "default",
-                "^default",
-                {
-                  "externalDependencies": [
-                    "next"
-                  ]
-                }
-              ],
-              "outputs": [
-                "{projectRoot}/.next"
-              ],
-              "executor": "nx:run-commands",
-              "options": {
-                "cwd": "apps/web",
-                "tty": false,
-                "command": "next build"
-              },
-              "configurations": {},
-              "parallelism": true
-            },
-            "serve": {
-              "continuous": true,
-              "executor": "nx:run-commands",
-              "options": {
-                "cwd": "apps/web",
-                "command": "next dev"
-              },
-              "configurations": {},
-              "parallelism": true
-            },
-            "start": {
-              "continuous": true,
-              "dependsOn": [
-                "build"
-              ],
-              "executor": "nx:run-commands",
-              "options": {
-                "cwd": "apps/web",
-                "command": "next start"
-              },
-              "configurations": {},
-              "parallelism": true
-            },
-            "serve-static": {
-              "continuous": true,
-              "options": {
-                "cwd": "apps/web",
-                "command": "next start"
-              },
-              "dependsOn": [
-                "build"
-              ],
-              "executor": "nx:run-commands",
-              "configurations": {},
-              "parallelism": true
-            },
-            "build-deps": {
-              "dependsOn": [
-                "^build"
-              ],
-              "configurations": {},
-              "options": {},
-              "parallelism": true,
-              "executor": "nx:noop"
-            },
-            "watch-deps": {
-              "continuous": true,
-              "dependsOn": [
-                "build-deps"
-              ],
-              "executor": "nx:run-commands",
-              "options": {
-                "command": "pnpm exec nx watch --projects web --includeDependentProjects -- pnpm exec nx build-deps web"
-              },
-              "configurations": {},
-              "parallelism": true
-            },
             "lint": {
               "cache": true,
               "options": {
@@ -1233,23 +1055,66 @@
               "inputs": [
                 "default",
                 "^default",
-                {
-                  "externalDependencies": [
-                    "jest"
-                  ]
-                }
+                "{workspaceRoot}/jest.preset.js"
               ],
               "outputs": [],
               "executor": "nx:run-commands",
               "configurations": {},
               "parallelism": true
+            },
+            "serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "next dev --webpack -p 4000",
+                "cwd": "apps/web"
+              },
+              "configurations": {
+                "development": {},
+                "production": {}
+              },
+              "parallelism": true
+            },
+            "build": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "next build --webpack",
+                "cwd": "apps/web"
+              },
+              "outputs": [
+                "{projectRoot}/.next"
+              ],
+              "configurations": {},
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "cache": true
+            },
+            "start": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "next start -p 4000",
+                "cwd": "apps/web"
+              },
+              "configurations": {},
+              "parallelism": true
             }
           },
           "name": "web",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "web",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
           "sourceRoot": "apps/web",
           "projectType": "application",
-          "tags": [],
           "implicitDependencies": []
         }
       },
@@ -1332,6 +1197,11 @@
           "source": "api-e2e",
           "target": "api",
           "type": "implicit"
+        },
+        {
+          "source": "api-e2e",
+          "target": "crypto",
+          "type": "static"
         }
       ],
       "desktop": [],
@@ -1375,6 +1245,11 @@
         {
           "source": "web",
           "target": "core",
+          "type": "static"
+        },
+        {
+          "source": "web",
+          "target": "sync",
           "type": "static"
         },
         {

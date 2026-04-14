@@ -18,12 +18,14 @@ export default function EditEntry() {
   const { updateEntry, deleteEntry } = useJournal();
   
   const [content, setContent] = useState<any>(null);
+  const [attachments, setAttachments] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   // Initialize content once entry is loaded
   useEffect(() => {
     if (entry && !content) {
       setContent(entry.content);
+      setAttachments(entry.attachments || []);
     }
   }, [entry, content]);
 
@@ -32,7 +34,7 @@ export default function EditEntry() {
     setIsSaving(true);
     
     try {
-      await updateEntry(id, { content });
+      await updateEntry(id, { content, attachments });
       setIsSaving(false);
     } catch (error) {
       console.error('Failed to update entry', error);
@@ -114,7 +116,15 @@ export default function EditEntry() {
       </header>
       
       <div className="mt-8 flex-1">
-        <TipTapEditor initialContent={entry.content} onChange={setContent} />
+        <TipTapEditor 
+          entryId={id}
+          initialContent={entry.content} 
+          initialAttachments={entry.attachments}
+          onChange={(content, ids) => {
+            setContent(content);
+            setAttachments(ids);
+          }} 
+        />
       </div>
     </motion.div>
   );

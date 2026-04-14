@@ -2,7 +2,11 @@
 
 ## Local Development
 
-Use Docker Compose:
+Use Docker Stack:
+
+```bash
+docker stack deploy --compose-file docker-compose.yml silo
+```
 
 - API
 - PostgreSQL

@@ -15,7 +15,7 @@ This document outlines the setup and configuration for the Silo infrastructure c
 MinIO is included in the `docker-compose.yml` file.
 
 ```bash
-docker-compose up -d storage
+docker stack deploy --compose-file docker-compose.yml silo
 ```
 
 - **API Endpoint**: `http://localhost:9000`
@@ -46,7 +46,7 @@ The following environment variables in `.env` control MinIO:
 Redis is included in the `docker-compose.yml` file.
 
 ```bash
-docker-compose up -d cache
+docker stack deploy --compose-file docker-compose.yml silo
 ```
 
 - **Host**: `localhost`

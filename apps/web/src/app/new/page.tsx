@@ -12,6 +12,7 @@ export default function NewEntry() {
   const router = useRouter();
   const { addEntry } = useJournal();
   const [content, setContent] = useState<any>(null);
+  const [attachments, setAttachments] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
@@ -22,7 +23,7 @@ export default function NewEntry() {
       await addEntry({
         content,
         tags: [],
-        attachments: [],
+        attachments: attachments,
         mood: undefined
       });
       router.push('/');
@@ -58,7 +59,10 @@ export default function NewEntry() {
       </header>
       
       <div className="mt-8 flex-1">
-        <TipTapEditor onChange={setContent} />
+        <TipTapEditor onChange={(content, ids) => {
+          setContent(content);
+          setAttachments(ids);
+        }} />
       </div>
     </motion.div>
   );

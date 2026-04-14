@@ -5,6 +5,6 @@ export default {
   out: './apps/api/src/db/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env['DATABASE_URL'] ?? 'postgresql://postgres:postgres@localhost:5432/silo',
+    url: process.env['DATABASE_URL'] ?? 'postgresql://silo:silo_pass@localhost:5432/silo',
   },
 } satisfies Config;

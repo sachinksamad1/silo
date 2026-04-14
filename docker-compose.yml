@@ -59,7 +59,7 @@ services:
 
 networks:
   silo-network:
-    driver: bridge
+    driver: overlay
 
 volumes:
   postgres-data:

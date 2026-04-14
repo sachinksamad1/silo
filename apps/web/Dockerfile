@@ -26,9 +26,9 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy standalone build
-COPY --from=builder /app/dist/apps/web/.next/standalone ./
-COPY --from=builder /app/dist/apps/web/.next/static ./dist/apps/web/.next/static
-COPY --from=builder /app/dist/apps/web/public ./dist/apps/web/public
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/public
 
 EXPOSE 3000
 

@@ -41,6 +41,7 @@ output.txt
 *.p12
 *.p8
 *.mobileprovision
+docs/env
 
 # --- Mobile (Expo/React Native) ---
 .expo/
@@ -137,3 +138,28 @@ docker-compose.override.yml
 *.swp
 *.swo
 *~
+
+# --- Additional Node/Package Manager ---
+.pnpm-store/
+.npm/
+node_modules/.cache/
+
+# --- Additional Build & Tool Artifacts ---
+.swc/
+.turbo/
+.vercel/
+.netlify/
+.drizzle/
+
+# --- Infrastructure Local Data ---
+postgres-data/
+minio-data/
+redis-data/
+.minio.sys/
+
+# --- Database Shards/Journals ---
+*.db-shm
+*.db-wal
+
+# Misc
+/docs/misc/*

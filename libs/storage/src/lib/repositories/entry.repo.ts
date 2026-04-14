@@ -1,13 +1,26 @@
-import { db } from '../db'
-import { v4 as uuid } from 'uuid'
-import { Entry, CreateEntryInput, UpdateEntryInput } from 'core'
-import { EntryEntity } from '../schema'
+import { CreateEntryInput, Entry, UpdateEntryInput } from 'core';
+import { v4 as uuid } from 'uuid';
 
-export class EntryRepository {
+async function getWebDb() {
+  const { db } = await import('../db');
+  return db;
+}
 
-  // CREATE — accepts validated input from libs/core CreateEntryInput
-  async create(input: CreateEntryInput): Promise<EntryEntity> {
-    const now = Date.now()
+export interface EntryRepositoryLike {
+  create(input: CreateEntryInput): Promise<Entry>;
+  update(id: string, updates: UpdateEntryInput): Promise<Entry | undefined>;
+  delete(id: string): Promise<void>;
+  getAll(): Promise<Entry[]>;
+  getById(id: string): Promise<Entry | undefined>;
+  getDirty(): Promise<Entry[]>;
+  markSynced(ids: string[]): Promise<void>;
+  bulkUpsert(entries: Entry[]): Promise<void>;
+}
+
+export class EntryRepository implements EntryRepositoryLike {
+  async create(input: CreateEntryInput): Promise<Entry> {
+    const db = await getWebDb();
+    const now = Date.now();
 
     const entry: Entry = {
       id: uuid(),
@@ -20,16 +33,16 @@ export class EntryRepository {
       dirty: true,
       deleted: false,
       version: 1,
-    }
+    };
 
-    await db.entries.add(entry)
-    return entry
+    await db.entries.add(entry);
+    return entry;
   }
 
-  // UPDATE — accepts validated partial input from libs/core UpdateEntryInput
-  async update(id: string, updates: UpdateEntryInput): Promise<EntryEntity | undefined> {
-    const existing = await db.entries.get(id)
-    if (!existing) return undefined
+  async update(id: string, updates: UpdateEntryInput): Promise<Entry | undefined> {
+    const db = await getWebDb();
+    const existing = await db.entries.get(id);
+    if (!existing) return undefined;
 
     const updated: Entry = {
       ...existing,
@@ -37,80 +50,74 @@ export class EntryRepository {
       updatedAt: Date.now(),
       dirty: true,
       version: existing.version + 1,
-    }
+    };
 
-    await db.entries.put(updated)
-    return updated
+    await db.entries.put(updated);
+    return updated;
   }
 
-  // SOFT DELETE — sets deleted=true, dirty=true, never hard-deletes
   async delete(id: string): Promise<void> {
-    const entry = await db.entries.get(id)
-    if (!entry) return
+    const db = await getWebDb();
+    const entry = await db.entries.get(id);
+    if (!entry) return;
 
     await db.entries.put({
       ...entry,
       deleted: true,
       dirty: true,
       updatedAt: Date.now(),
-    })
+    });
   }
 
-  // GET ALL (Timeline) — returns non-deleted entries ordered by updatedAt desc
-  async getAll(): Promise<EntryEntity[]> {
-    return db.entries
-      .orderBy('updatedAt')
-      .reverse()
-      .filter((entry) => !entry.deleted)
-      .toArray();
+  async getAll(): Promise<Entry[]> {
+    const db = await getWebDb();
+    return db.entries.orderBy('updatedAt').reverse().filter((entry) => !entry.deleted).toArray();
   }
 
-  // GET BY ID
-  async getById(id: string): Promise<EntryEntity | undefined> {
-    return db.entries.get(id)
+  async getById(id: string): Promise<Entry | undefined> {
+    const db = await getWebDb();
+    return db.entries.get(id);
   }
 
-  // GET DIRTY — returns all entries pending sync
-  async getDirty(): Promise<EntryEntity[]> {
-    return db.entries
-      .filter((entry) => !!entry.dirty)
-      .toArray();
+  async getDirty(): Promise<Entry[]> {
+    const db = await getWebDb();
+    return db.entries.filter((entry) => !!entry.dirty).toArray();
   }
 
-  // MARK SYNCED — clears dirty flag after successful push
   async markSynced(ids: string[]): Promise<void> {
-    const now = Date.now()
+    const db = await getWebDb();
+    const now = Date.now();
 
     await db.transaction('rw', db.entries, async () => {
       for (const id of ids) {
-        const entry = await db.entries.get(id)
-        if (!entry) continue
+        const entry = await db.entries.get(id);
+        if (!entry) continue;
 
         await db.entries.put({
           ...entry,
           dirty: false,
           lastSyncedAt: now,
-        })
+        });
       }
-    })
+    });
   }
 
-  // BULK UPSERT (from server pull) — LWW conflict resolution on updatedAt
   async bulkUpsert(entries: Entry[]): Promise<void> {
+    const db = await getWebDb();
+
     await db.transaction('rw', db.entries, async () => {
       for (const remote of entries) {
-        const local = await db.entries.get(remote.id)
+        const local = await db.entries.get(remote.id);
 
         if (!local) {
-          await db.entries.add({ ...remote, dirty: false })
-          continue
+          await db.entries.add({ ...remote, dirty: false });
+          continue;
         }
 
-        // LWW: remote wins only if it's strictly newer
         if (remote.updatedAt > local.updatedAt) {
-          await db.entries.put({ ...remote, dirty: false })
+          await db.entries.put({ ...remote, dirty: false });
         }
       }
-    })
+    });
   }
 }

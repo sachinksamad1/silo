@@ -1,10 +1,23 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "baseUrl": ".",
     "strict": true,
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "core": [
+        "../../libs/core/src/index.ts"
+      ],
+      "storage": [
+        "../../libs/storage/src/index.ts"
+      ],
+      "sync": [
+        "../../libs/sync/src/index.ts"
+      ],
+      "api-client": [
+        "../../libs/api-client/src/index.ts"
       ]
     }
   },

@@ -1,8 +1,15 @@
-import { EntryRepository } from 'storage';
-import { api } from 'api-client';
+import { ApiClient, api } from 'api-client';
+import { Entry } from 'core';
+import { EntryRepository, EntryRepositoryLike } from 'storage';
 
 export class SyncEngine {
-  private repo = new EntryRepository();
+  constructor(
+    private readonly repo: Pick<
+      EntryRepositoryLike,
+      'getDirty' | 'markSynced' | 'bulkUpsert'
+    > = new EntryRepository(),
+    private readonly client: Pick<ApiClient, 'pushEntries' | 'pullEntries'> = api
+  ) {}
 
   async push() {
     const dirty = await this.repo.getDirty();
@@ -11,7 +18,7 @@ export class SyncEngine {
     console.log(`Pushing ${dirty.length} local changes...`);
 
     try {
-      await api.pushEntries(dirty);
+      await this.client.pushEntries(dirty);
       await this.repo.markSynced(dirty.map(e => e.id));
     } catch (error) {
       console.error('Push failed', error);
@@ -24,10 +31,10 @@ export class SyncEngine {
     try {
       // For MVP, we use LWW and we don't store since timestamp locally yet
       // but the API supports it.
-      const response = await api.pullEntries();
+      const response = await this.client.pullEntries();
       const remoteEntries = response.data?.entries;
 
-      if (remoteEntries && Array.isArray(remoteEntries) && remoteEntries.length > 0) {
+      if (isEntryArray(remoteEntries) && remoteEntries.length > 0) {
         await this.repo.bulkUpsert(remoteEntries);
       }
     } catch (error) {
@@ -40,4 +47,8 @@ export class SyncEngine {
     await this.push();
     await this.pull();
   }
+}
+
+function isEntryArray(entries: unknown): entries is Entry[] {
+  return Array.isArray(entries);
 }

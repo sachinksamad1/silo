@@ -8,8 +8,17 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "electron ."
+        "command": "SILO_DEV=true electron .",
+        "cwd": "apps/desktop"
+      }
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc main.ts preload.ts --outDir dist --module CommonJS --target ES2020 --esModuleInterop --skipLibCheck",
+        "cwd": "apps/desktop"
       }
     }
-  }
+  },
+  "implicitDependencies": ["web"]
 }
